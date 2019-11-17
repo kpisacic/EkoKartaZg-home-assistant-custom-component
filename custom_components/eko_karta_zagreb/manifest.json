@@ -1,0 +1,10 @@
+{
+  "domain": "eko_karta_zagreb",
+  "name": "Eko Karta Zagreb",
+  "documentation": "https://www.home-assistant.io/integrations/eko_karta_zagreb",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@kpisacic"
+  ]
+}
