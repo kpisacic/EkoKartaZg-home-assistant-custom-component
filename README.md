@@ -43,7 +43,7 @@ weather:
 ```
 
 - The platform checks for new data every 20 minutes, and the source data is typically updated hourly within 10 minutes after the hour.
-- If no name is given, the weather entity will be named `weather.dhmz`.
+- If no name is given, the weather entity will be named `weather.eko_karta_zagreb`.
 
 *Configuration*
 
@@ -52,7 +52,7 @@ weather:
   - required: false
   - type: string
 - station_id:
-  - description: The station code of a specific weather station to use - see (#station_name)
+  - description: The station code of a specific weather station to use - see (#station_id)
   - required: true
   - type: string
 
@@ -65,31 +65,28 @@ To add DHMZ weather to your installation, add the following to your `configurati
 ```yaml
 # Example configuration.yaml entry
 sensor:
-  - platform: dhmz
-    name: DHMZ Sensor Maksimir
-    station_name: Zagreb-Maksimir
-    forecast_region_name: Zagreb
-    forecast_text: zg_text
-    forecast_station_name: Zagreb_Maksimir
+  - platform: eko_karta_zagreb
+    name: EkoZG Maksimir
+    station_id: 969
     monitored_conditions:
       - temperature
       - pressure
-      - pressure_tendency
       - humidity
-      - wind_speed
-      - wind_bearing
-      - condition
-      - precipitation
-      - forecast_text_today
-      - forecast_text_tommorow
+      - air_quality_index
+      - carbon_monoxide
+      - nitrogen_monoxide
+      - nitrogen_dioxide
+      - ozone
+      - particulate_matter_0_1
+      - particulate_matter_10
+      - particulate_matter_2_5
+      - sulphur_dioxide
 ```
 
 - A sensor will be created for each of the following conditions, with a default name like `sensor.<name>_temperature`:     
     - `temperature` - The current temperature, in ÂşC.
     - `pressure` - The current air pressure, in kPa.
-    - `pressure_tendency` - The current air pressure tendency, e.g. "+0.5" in last hour.
     - `humidity` - The current humidity, in %.
-    - `condition` - A brief text statement of the current weather conditions, e.g. "Sunny".
     - `wind_speed` - The current sustained wind speed, in km/h.
     - `wind_bearing` - The current cardinal wind direction, e.g. "SSW".
     - `precipitation` - precipitation in last 24 hours, in mm.
@@ -101,20 +98,8 @@ sensor:
   - description: Name to be used for the entity ID, e.g. `sensor.<name>_temperature`.
   - required: false
   - type: string
-- station_name:
-  - description: The station code of a specific weather station to use - see (#station_name)
-  - required: true
-  - type: string
-- forecast_region_name:
-  - description: The forecase region_name - see (#forecast_region_name)
-  - required: true
-  - type: string
-- forecast_text:
-  - description: The forecast text identifier - see ##forecast_text
-  - required: true
-  - type: string
-- forecast_station_name:
-  - description: The forecast station name - see ##forecast_station_name
+- station_id:
+  - description: The station code of a specific weather station to use - see (#station_id)
   - required: true
   - type: string
 - monitored_conditions:
@@ -132,7 +117,7 @@ sensor:
       - forecast_text_today
       - forecast_text_tommorow
 
-## Camera
+## Ait_Quality
 
 The `dhmz` camera platform displays DHMZ [radar imagery].
 
@@ -157,3 +142,13 @@ camera:
 
 ## station_id
 
+  "id": 426,	"name": "Zagreb Mirogojska",
+  "id": 970,	"name": "Zagrebačka avenija-Selska",
+  "id": 973,	"name": "Oranice-Ilica",
+  "id": 969,	"name": "Maksimir",
+  "id": 971,	"name": "Branimirova-Držićeva",
+  "id": 968,	"name": "Sesvete",
+  "id": 422,	"name": "IMI",
+  "id": 974,	"name": "Jadranski most - Selska",
+  "id": 972,	"name": "Savska-Jukićeva",
+  "id": 967,	"name": "IMI Zagreb Ksaverska",
