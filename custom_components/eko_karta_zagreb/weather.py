@@ -10,7 +10,7 @@ from homeassistant.components.weather import (
     PLATFORM_SCHEMA,
     WeatherEntity,
 )
-from homeassistant.const import CONF_NAME, TEMP_CELSIUS
+from homeassistant.const import CONF_NAME, TEMP_CELSIUS, CONF_LONGITUDE, CONF_LATITUDE
 from homeassistant.helpers import config_validation as cv
 
 # Reuse data and API logic from the sensor implementation
@@ -22,14 +22,22 @@ from .sensor import (
     SENSOR_TYPES,
     ATTR_STATION,
     ATTR_UPDATED,
+    closest_station,
+    ekokartazagreb_stations,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_STATION_ID): cv.string,
+        vol.Optional(CONF_STATION_ID): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Inclusive(
+            CONF_LATITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.latitude,
+        vol.Inclusive(
+            CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.longitude,
     }
 )
 
@@ -39,8 +47,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Eko Karta Zagreb weather platform."""
     name = config.get(CONF_NAME)
     station_id = config.get(CONF_STATION_ID)
+    latitude = config.get(CONF_LATITUDE, hass.config.latitude)
+    longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
 
-    _LOGGER.debug("Setup platform: %s",  station_id )
+    stations = ekokartazagreb_stations()
+    _LOGGER.debug("Loaded stations dict: %s", stations)
+    station_id = config.get(CONF_STATION_ID) 
+    if station_id:
+        _LOGGER.debug("Configuration station_id: %s", station_id)
+        if station_id not in stations:
+            _LOGGER.error("Configuration %s: %s , is not known", CONF_STATION_ID, station_id)
+            return False            
+    else:
+        station_id = closest_station(latitude, longitude, stations)
+        _LOGGER.debug("Found closest station_id: %s", station_id)
+
+    station_name = stations[station_id][2]
+    _LOGGER.debug("Determined station name: %s", station_name)
 
     probe = EkoKartaZagrebData(station_id=station_id)
     try:
@@ -49,18 +72,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.error("Received error from Eko Karta Zagreb: %s", err)
         return False
 
-    add_entities([EkoKartaZagrebWeather(probe, name)], True)
+    add_entities([EkoKartaZagrebWeather(probe, name, station_name)], True)
 
 class EkoKartaZagrebWeather(WeatherEntity):
     """Representation of a weather condition."""
 
-    def __init__(self, eko_karta_zagreb_data, name):
+    def __init__(self, eko_karta_zagreb_data, name, station_name):
         """Initialise the platform with a data instance and station name."""
         _LOGGER.debug("Initialized.")
         self.eko_karta_zagreb_data = eko_karta_zagreb_data
         self._name = name
         self._state = self.eko_karta_zagreb_data.get_data(SENSOR_TYPES[ATTR_WEATHER_TEMPERATURE][4])
         self._last_update = self.eko_karta_zagreb_data.last_update
+        self._station_name = station_name
 
     def update(self):
         """Update current conditions."""

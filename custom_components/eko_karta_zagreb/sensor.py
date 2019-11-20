@@ -26,6 +26,8 @@ from homeassistant.components.air_quality import(
 )
 from homeassistant.const import (
     CONF_NAME,
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
     CONF_MONITORED_CONDITIONS,
     __version__,
 )
@@ -70,8 +72,14 @@ PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend(
         vol.Required(CONF_MONITORED_CONDITIONS, default=[ATTR_WEATHER_TEMPERATURE]): vol.All(
             cv.ensure_list, [vol.In(SENSOR_TYPES)]
         ),        
-        vol.Required(CONF_STATION_ID): cv.string,
+        vol.Optional(CONF_STATION_ID): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Inclusive(
+            CONF_LATITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.latitude,
+        vol.Inclusive(
+            CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.longitude,
     }
 )
 
@@ -79,22 +87,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Eko Karta Zagreb sensor platform."""
     name = config.get(CONF_NAME)
     station_id = config.get(CONF_STATION_ID)
+    latitude = config.get(CONF_LATITUDE, hass.config.latitude)
+    longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
 
-    # if station_name not in dhmz_stations(hass.config.config_dir):
-    #     _LOGGER.error(
-    #         "Configured DHMZ %s (%s) is not a known station",
-    #         CONF_STATION_NAME,
-    #         station_name,
-    #     )
-    #     return False
-    
-	# if forecast_region_name not in dhmz_regions(hass.config.config_dir):
-    #     _LOGGER.error(
-    #         "Configured DHMZ %s (%s) is not a known region",
-    #         CONF_FORECAST_REGION_NAME,
-    #         forecast_region_name,
-    #     )
-    #     return False
+    stations = ekokartazagreb_stations()
+    _LOGGER.debug("Loaded stations dict: %s", stations)
+    station_id = config.get(CONF_STATION_ID) 
+    if station_id:
+        _LOGGER.debug("Configuration station_id: %s", station_id)
+        if station_id not in stations:
+            _LOGGER.error("Configuration %s: %s , is not known", CONF_STATION_ID, station_id)
+            return False            
+    else:
+        station_id = closest_station(latitude, longitude, stations)
+        _LOGGER.debug("Found closest station_id: %s", station_id)
+
+    station_name = stations[station_id][2]
+    _LOGGER.debug("Determined station name: %s", station_name)
 
     probe = EkoKartaZagrebData(station_id=station_id)
     try:
@@ -105,7 +114,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     add_entities(
         [
-            EkoKartaZagrebSensor(probe, variable, name)
+            EkoKartaZagrebSensor(probe, variable, name, station_name)
             for variable in config[CONF_MONITORED_CONDITIONS]
         ],
         True,
@@ -115,11 +124,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EkoKartaZagrebSensor(Entity):
     """Implementation of a Eko Karta Zagreb sensor."""
 
-    def __init__(self, probe, variable, name):
+    def __init__(self, probe, variable, name, station_name):
         """Initialize the sensor."""
         self.probe = probe
         self.client_name = name
         self.variable = variable
+        self.station_name = station_name
 
     @property
     def name(self):
@@ -235,38 +245,25 @@ class EkoKartaZagrebData:
         """Get the data."""
         return self._data.get(variable)
 
-def _get_ekokartazagreb_stations():
+def ekokartazagreb_stations():
     """Return {CONF_STATION: (lat, lon)} for all stations, for auto-config."""
-    # capital_stations = {r["Station"] for r in DhmzData.current_situation()}
-    # req = requests.get(
-    #     "https://www.zamg.ac.at/cms/en/documents/climate/"
-    #     "doc_metnetwork/zamg-observation-points",
-    #     timeout=15,
-    # )
     stations = {}
-    # for row in csv.DictReader(req.text.splitlines(), delimiter=";", quotechar='"'):
-    #     if row.get("synnr") in capital_stations:
-    #         try:
-    #             stations[row["synnr"]] = tuple(
-    #                 float(row[coord].replace(",", "."))
-    #                 for coord in ["breite_dezi", "länge_dezi"]
-    #             )
-    #         except KeyError:
-    #             _LOGGER.error("ZAMG schema changed again, cannot autodetect station")
+    js = json.load(urlopen("https://ekokartazagreb.stampar.hr/rest/stations/"))
+    for elem in js:
+        if elem["measurementType"]["name"] == "zrak":
+            stations[str(elem["id"])] = ( float(elem["coordinateY"])*0.00000909836-0.360421, float(elem["coordinateX"])*0.0000128768+10.0617, elem["name"] )
+    _LOGGER.debug("Loaded %s stations", len(stations))
     return stations
 
+def closest_station(lat, lon, stations):
+    """Return the ID of the closest station to our lat/lon."""
+    _LOGGER.debug("Closest station, lat: %s, lon: %s", lat, lon)
+    if lat is None or lon is None:
+        return
 
-def ekokartazagreb_stations(cache_dir):
-    """Return {CONF_STATION: (lat, lon)} for all stations, for auto-config.
+    def comparable_dist(stat_id):
+        """Calculate the pseudo-distance from lat/lon."""
+        station_lat, station_lon, _ = stations[stat_id]
+        return (lat - station_lat) ** 2 + (lon - station_lon) ** 2
 
-    Results from internet requests are cached as compressed json, making
-    subsequent calls very much faster.
-    """
-    cache_file = os.path.join(cache_dir, ".zamg-stations.json.gz")
-    if not os.path.isfile(cache_file):
-        stations = _get_ekokartazagreb_stations()
-        with gzip.open(cache_file, "wt") as cache:
-            json.dump(stations, cache, sort_keys=True)
-        return stations
-    with gzip.open(cache_file, "rt") as cache:
-        return {k: tuple(v) for k, v in json.load(cache).items()}
+    return min(stations, key=comparable_dist)

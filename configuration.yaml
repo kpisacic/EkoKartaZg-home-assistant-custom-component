@@ -22,7 +22,9 @@ logger:
 sensor:
   - platform: eko_karta_zagreb
     name: EkoZG Maksimir
-    station_id: 969
+    # station_id: 969
+    # lon: 16.01
+    # lat: 45.82
     monitored_conditions:
       - temperature
       - pressure
@@ -40,9 +42,13 @@ sensor:
 weather:
   - platform: eko_karta_zagreb
     name: EkoZG Maksimir
-    station_id: 969
+    # station_id: 969
+    # lon: 16.01
+    # lat: 45.82
 
 air_quality:
   - platform: eko_karta_zagreb
     name: EkoZg Maksimir
-    station_id: 969
+    # station_id: 969
+    # lon: 16.01
+    # lat: 45.82
