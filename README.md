@@ -9,6 +9,20 @@ The following device types and data are supported:
 - [Sensor](#sensor) - Current conditions and alerts
 - [Air Quality](#air_quality) - Air Quality data
 
+## Installation
+
+There are two options; manual or HACS installation:
+
+*Manual installation*
+- Copy `eko_karta_zagreb`  folder in `custom_components` from repository to your Home Assistant configuration `custom_components` folder. Don't copy any other YAML files from repository root not to overwrite your own configuration.
+
+*HACS installation*
+
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+
+- Use HACS custom repository (not default) - (https://github.com/kpisacic/EkoKartaZg-home-assistant-custom-component)
+
+
 ## Location Selection
 
 Each platform can determine location in any of following ways:
