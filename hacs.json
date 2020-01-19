@@ -1,0 +1,7 @@
+{
+    "name": "Eko Karta Zagreb - City of Zagreb air quality monitoring service",
+    "render_readme": true,
+    "domains": ["air_quality","weather","sensor"],
+    "country": ["HR"],
+    "homeassistant": "0.99.0"
+}
