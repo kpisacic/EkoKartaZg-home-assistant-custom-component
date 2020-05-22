@@ -156,7 +156,7 @@ To add Eko Karta Zagreb air quality to your installation, place `custom_componen
 ```yaml
 # Example configuration.yaml entry
 air_quality:
-  - platform: eko_karta_zg
+  - platform: eko_karta_zagreb
     name: EkoZG Maksimir
     station_id: 969
     lon: 16.01
