@@ -1,6 +1,7 @@
 {
   "domain": "eko_karta_zagreb",
   "name": "Eko Karta Zagreb",
+  "version": "2021.03.1",
   "documentation": "https://www.home-assistant.io/integrations/eko_karta_zagreb",
   "requirements": [],
   "dependencies": [],
