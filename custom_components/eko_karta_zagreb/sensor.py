@@ -4,7 +4,7 @@ import gzip
 import json
 import logging
 import os
-from urllib.request import urlopen, URLError, HTTPError
+from urllib.request import urlopen, Request, URLError, HTTPError
 import voluptuous as vol
 
 from homeassistant.components.weather import (
@@ -197,7 +197,7 @@ class EkoKartaZagrebData:
             _LOGGER.debug("Updating - started")
             # check air sensor
             url = self.EKOKARTAZAGREB_AIR_API_URL.format(self._station_id)
-            response = urlopen(url)
+            response = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
             elems = json.load(response)
 
             # check if invalid meassurements of temperature, humidity and pressure - remove them from collection, so they dont get updated
@@ -211,7 +211,7 @@ class EkoKartaZagrebData:
 
             # check air index sensor
             url = self.EKOKARTAZAGREB_AIRINDEX_API_URL.format(self._station_id)
-            response = urlopen(url)
+            response = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
             elems = json.load(response)
 
             # update sensor data
@@ -248,7 +248,8 @@ class EkoKartaZagrebData:
 def ekokartazagreb_stations():
     """Return {CONF_STATION: (lat, lon)} for all stations, for auto-config."""
     stations = {}
-    js = json.load(urlopen("https://ekokartazagreb.stampar.hr/rest/stations/"))
+
+    js = json.load(urlopen(Request("https://ekokartazagreb.stampar.hr/rest/stations/", headers={'User-Agent': 'Mozilla'})))
     for elem in js:
         if elem["measurementType"]["name"] == "zrak":
             stations[str(elem["id"])] = ( float(elem["coordinateY"])*0.00000909836-0.360421, float(elem["coordinateX"])*0.0000128768+10.0617, elem["name"] )
