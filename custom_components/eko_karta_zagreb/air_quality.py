@@ -5,7 +5,6 @@ import voluptuous as vol
 
 from homeassistant.components.air_quality import(
     ATTR_AQI,
-    ATTR_ATTRIBUTION,
     ATTR_CO,
     ATTR_NO,
     ATTR_NO2,
@@ -22,7 +21,6 @@ from homeassistant.helpers import config_validation as cv
 
 # Reuse data and API logic from the sensor implementation
 from .sensor import (
-    ATTRIBUTION,
     DEFAULT_NAME,
     CONF_STATION_ID,
     EkoKartaZagrebData,
@@ -117,7 +115,7 @@ class EkoKartaZagrebAirQuality(AirQualityEntity):
     @property
     def attribution(self):
         """Return the attribution."""
-        return ATTRIBUTION
+        return "Data provided by Eko Karta Zagreb"
 
     @property
     def device_state_attributes(self):

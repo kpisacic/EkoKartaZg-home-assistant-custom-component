@@ -14,7 +14,6 @@ from homeassistant.components.weather import (
 )
 from homeassistant.components.air_quality import(
     ATTR_AQI,
-    ATTR_ATTRIBUTION,
     ATTR_CO,
     ATTR_NO,
     ATTR_NO2,
@@ -39,7 +38,6 @@ _LOGGER = logging.getLogger(__name__)
 
 ATTR_STATION = "station"
 ATTR_UPDATED = "updated"
-ATTRIBUTION = "Data provided by Eko Karta Zagreb"
 
 CONF_STATION_ID = "station_id"
 
@@ -155,7 +153,6 @@ class EkoKartaZagrebSensor(Entity):
     def device_state_attributes(self):
         """Return the state attributes."""
         ret = {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
             ATTR_STATION: self.probe.get_data(SENSOR_TYPES["location"][4]),
             ATTR_UPDATED: self.probe.last_update.isoformat(),
         }
