@@ -46,23 +46,23 @@ DEFAULT_NAME = "eko_karta_zagreb"
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=20)
 
 SENSOR_TYPES = {
-    ATTR_WEATHER_TEMPERATURE: ("Temperature", "°C", "temperature", float, "temperature", "", "", "mdi:thermometer"),
-    ATTR_WEATHER_HUMIDITY: ("Humidity", "%", "humidity", int, "humidity", "", "", "mdi:water-percent"),
-    ATTR_WEATHER_PRESSURE: ("Pressure", "hPa", "pressure", float, "pressure", "", "", "mdi:thermometer-lines"),
-    ATTR_AQI: ("Air Quality index", "", "AQI", float, "airIndex", "", "", "mdi:air-filter"),
-    ATTR_CO: ("Carbon Monoxide (CO)", "mg/m3", "CO", float, "co", "coIndex", "coAvg",""),
-    ATTR_NO: ("Nitrogen Monoxide (NO)", "µg/m3", "NO", float, "no0", "", "no0Avg",""),
-    ATTR_NO2: ("Nitrogen Dioxide (NO₂)", "µg/m3", "NO₂", float, "no2", "no2Index", "no2Avg", ""),
-    ATTR_OZONE: ("Ozone (O₃)", "µg/m3", "O₃", float, "o3", "o3Index", "o3Avg", ""),
-    ATTR_PM_0_1: ("Particles (<1)", "µg/m3", "PM1", float, "pm1", "", "pm1Avg", ""),
-    ATTR_PM_10: ("Particles (>10)", "µg/m3", "PM10", float, "pm10", "pm10Index", "pm10Avg", ""),
-    ATTR_PM_2_5: ("Particles (2-5)", "µg/m3", "PM2-5", float, "pm25", "pm25Index", "pm25Avg", ""),
-    ATTR_SO2: ("Sulphur Dioxide (SO₂)", "µg/m3", "SO₂", float, "so2", "so2Index", "so2Avg", ""),
+    ATTR_WEATHER_TEMPERATURE: ("Temperature", "°C", "temperature", float, "temperature", "", "", "mdi:thermometer", "temperature", "measurement"),
+    ATTR_WEATHER_HUMIDITY: ("Humidity", "%", "humidity", int, "humidity", "", "", "mdi:water-percent", "humidity", "measurement"),
+    ATTR_WEATHER_PRESSURE: ("Pressure", "hPa", "pressure", float, "pressure", "", "", "mdi:thermometer-lines", "pressure", "measurement"),
+    ATTR_AQI: ("Air Quality index", "", "AQI", float, "airIndex", "", "", "mdi:air-filter", "aqi", "measurement"),
+    ATTR_CO: ("Carbon Monoxide (CO)", "mg/m3", "CO", float, "co", "coIndex", "coAvg","", "carbon_monoxide", "measurement"),
+    ATTR_NO: ("Nitrogen Monoxide (NO)", "µg/m3", "NO", float, "no0", "", "no0Avg","", "nitrogen_monoxide", "measurement"),
+    ATTR_NO2: ("Nitrogen Dioxide (NO₂)", "µg/m3", "NO₂", float, "no2", "no2Index", "no2Avg", "", "nitrogen_dioxide", "measurement"),
+    ATTR_OZONE: ("Ozone (O₃)", "µg/m3", "O₃", float, "o3", "o3Index", "o3Avg", "", "ozone", "measurement"),
+    ATTR_PM_0_1: ("Particles (<1)", "µg/m3", "PM1", float, "pm1", "", "pm1Avg", "", "pm1", "measurement"),
+    ATTR_PM_10: ("Particles (>10)", "µg/m3", "PM10", float, "pm10", "pm10Index", "pm10Avg", "", "pm10", "measurement"),
+    ATTR_PM_2_5: ("Particles (2-5)", "µg/m3", "PM2-5", float, "pm25", "pm25Index", "pm25Avg", "", "pm25", "measurement"),
+    ATTR_SO2: ("Sulphur Dioxide (SO₂)", "µg/m3", "SO₂", float, "so2", "so2Index", "so2Avg", "", "sulphur_dioxide", "measurement"),
     # general attributes
-    "location": ("Location", "", "", str, "locationName", "", "", ""),
-    "lon": ("Longitude", "°", "Long °", float, "xCoordinate", "","", ""),
-    "lat": ("Latitude", "°", "Latt °", float, "yCoordinate", "","", ""),
-    "update_timestamp": ("Update Timestamp", None, "Update", str, "measurementDate", "", "", "mdi:clock"),
+    "location": ("Location", "", "", str, "locationName", "", "", "", "", ""),
+    "lon": ("Longitude", "°", "Long °", float, "xCoordinate", "","", "", "", ""),
+    "lat": ("Latitude", "°", "Latt °", float, "yCoordinate", "","", "", "", ""),
+    "update_timestamp": ("Update Timestamp", None, "Update", str, "measurementDate", "", "", "mdi:clock", "timestamp", ""),
 }
 
 PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend(
@@ -143,6 +143,16 @@ class EkoKartaZagrebSensor(Entity):
     def icon(self):
         """Return the state of the sensor."""
         return SENSOR_TYPES[self.variable][7]
+
+    @property
+    def device_class(self):
+        """Return the device_class of this entity, if any."""
+        return SENSOR_TYPES[self.variable][8]
+
+    @property
+    def state_class(self):
+        """Return the state_class of this entity, if any."""
+        return SENSOR_TYPES[self.variable][9]
 
     @property
     def unit_of_measurement(self):
