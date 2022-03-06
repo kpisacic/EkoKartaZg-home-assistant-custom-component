@@ -117,7 +117,7 @@ class EkoKartaZagrebWeather(WeatherEntity):
         return "Data provided by Eko Karta Zagreb"
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes."""
         ret = {
             ATTR_STATION: self.eko_karta_zagreb_data.get_data(SENSOR_TYPES["location"][4]),
