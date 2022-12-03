@@ -10,7 +10,8 @@ from homeassistant.components.weather import (
     PLATFORM_SCHEMA,
     WeatherEntity,
 )
-from homeassistant.const import CONF_NAME, TEMP_CELSIUS, CONF_LONGITUDE, CONF_LATITUDE
+from homeassistant.const import CONF_NAME, CONF_LONGITUDE, CONF_LATITUDE
+from homeassistant.const import UnitOfTemperature, UnitOfPressure
 from homeassistant.helpers import config_validation as cv
 
 # Reuse data and API logic from the sensor implementation
@@ -126,19 +127,24 @@ class EkoKartaZagrebWeather(WeatherEntity):
         return(ret)
 
     @property
-    def temperature(self):
+    def _attr_native_temperature(self):
         """Return the platform temperature."""
         return float(self.eko_karta_zagreb_data.get_data(SENSOR_TYPES[ATTR_WEATHER_TEMPERATURE][4]))
 
     @property
-    def temperature_unit(self):
+    def _attr_native_temperature_unit(self):
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
-    def pressure(self):
+    def _attr_native_pressure(self):
         """Return the pressure."""
         return float(self.eko_karta_zagreb_data.get_data(SENSOR_TYPES[ATTR_WEATHER_PRESSURE][4]))
+
+    @property
+    def _attr_native_pressure_unit(self):
+        """Return the unit of measurement."""
+        return UnitOfPressure.HPA
 
     @property
     def humidity(self):
