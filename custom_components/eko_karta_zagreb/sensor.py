@@ -43,7 +43,7 @@ CONF_STATION_ID = "station_id"
 
 DEFAULT_NAME = "eko_karta_zagreb"
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=20)
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=10)
 
 SENSOR_TYPES = {
     ATTR_WEATHER_TEMPERATURE: ("Temperature", "°C", "temperature", float, "temperature", "", "", "mdi:thermometer", "temperature", "measurement"),
@@ -235,7 +235,7 @@ class EkoKartaZagrebData:
     def update(self):
         """Get the latest data from Eko Karta Zagreb."""
         if self.last_update and (
-            self.last_update + timedelta(hours=1)
+            self.last_update + timedelta(minutes=15)
             > datetime.now()
         ):
             _LOGGER.debug("Skipping sensor data update, last_update was: %s", self.last_update)
